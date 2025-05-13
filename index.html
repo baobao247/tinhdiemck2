@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Tính điểm HK2 & Cuối kỳ</title>
+  <title>Tính điểm học kỳ</title>
   <style>
     body {
       font-family: "Segoe UI", sans-serif;
@@ -92,19 +92,19 @@
 </head>
 <body>
   <div class="container">
-    <h2>Tính điểm trung bình học kỳ 2</h2>
-    <label for="dtb_hk1">Nhập điểm trung bình HK1:</label>
-    <input type="number" id="dtb_hk1" step="0.1">
+    <h2>Tính điểm trung bình học kỳ 2 cần thiết</h2>
+    <label for="dtb_hk1">Nhập điểm trung bình HK1 (0-10):</label>
+    <input type="number" id="dtb_hk1" step="0.1" min="0" max="10">
 
     <button onclick="tinhDTBNam()">Tính điểm HK2 cần đạt</button>
     <div id="ketqua_hk2" class="output"></div>
 
-    <h2>Tính điểm cuối kỳ</h2>
-    <label for="diem_tx">Nhập các điểm thường xuyên (cách nhau bởi dấu cách):</label>
+    <h2>Tính điểm cuối kỳ cần thiết</h2>
+    <label for="diem_tx">Nhập các điểm thường xuyên (cách nhau bởi dấu cách, 0-10):</label>
     <input type="text" id="diem_tx">
 
-    <label for="diem_gk">Nhập điểm giữa kỳ:</label>
-    <input type="number" id="diem_gk" step="0.1">
+    <label for="diem_gk">Nhập điểm giữa kỳ (0-10):</label>
+    <input type="number" id="diem_gk" step="0.1" min="0" max="10">
 
     <button onclick="tinhDiemCuoiKy()">Tính điểm cuối kỳ cần đạt</button>
     <div id="ketqua_ck" class="output"></div>
@@ -116,8 +116,8 @@
 
     function tinhDTBNam() {
       let dtb_hk1 = parseFloat(document.getElementById("dtb_hk1").value);
-      if (isNaN(dtb_hk1)) {
-        alert("Vui lòng nhập điểm HK1 hợp lệ");
+      if (isNaN(dtb_hk1) || dtb_hk1 < 0 || dtb_hk1 > 10) {
+        alert("Vui lòng nhập điểm HK1 hợp lệ (từ 0 đến 10).");
         return;
       }
 
@@ -134,16 +134,25 @@
     }
 
     function tinhDiemCuoiKy() {
+      if (dtb_hk2_can_arr.length === 0) {
+        alert("Bạn cần tính điểm trung bình HK2 cần thiết trước.");
+        return;
+      }
+
       let diem_tx_str = document.getElementById("diem_tx").value.trim();
       let diem_gk = parseFloat(document.getElementById("diem_gk").value);
-      if (!diem_tx_str || isNaN(diem_gk)) {
-        alert("Vui lòng nhập đầy đủ điểm thường xuyên và giữa kỳ!");
+
+      if (!diem_tx_str || isNaN(diem_gk) || diem_gk < 0 || diem_gk > 10) {
+        alert("Vui lòng nhập đầy đủ điểm hợp lệ (0-10).");
         return;
       }
 
       let diem_tx = diem_tx_str.split(" ").map(Number);
-      if (diem_tx.some(isNaN)) {
-        alert("Điểm thường xuyên phải là số, cách nhau bởi dấu cách");
+      if (
+        diem_tx.some(isNaN) ||
+        diem_tx.some(d => d < 0 || d > 10)
+      ) {
+        alert("Tất cả điểm thường xuyên phải là số từ 0 đến 10.");
         return;
       }
 
