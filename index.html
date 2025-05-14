@@ -3,6 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Công cụ tính điểm học kỳ cần thiết để đạt mục tiêu.">
+  <meta name="keywords" content="tính điểm, học kỳ, công cụ học tập, tiếng Việt">
   <title>Tính điểm học kỳ</title>
   <style>
     body {
@@ -77,6 +79,13 @@
       border-radius: 8px;
       padding: 10px;
       margin-top: 10px;
+      transition: opacity 0.3s ease;
+    }
+
+    .error {
+      color: red;
+      font-size: 14px;
+      margin-top: 5px;
     }
 
     @media (max-width: 600px) {
@@ -93,33 +102,64 @@
 <body>
   <div class="container">
     <h2>Tính điểm trung bình học kỳ 2 cần thiết</h2>
+    <label for="muc_tieu">Nhập mục tiêu điểm (cách nhau bởi dấu cách, ví dụ: 7.0 8.5):</label>
+    <input type="text" id="muc_tieu" placeholder="Ví dụ: 6.5 8.0 9.0">
+    <div id="error_muc_tieu" class="error"></div>
+
     <label for="dtb_hk1">Nhập điểm trung bình HK1 (0-10):</label>
     <input type="number" id="dtb_hk1" step="0.1" min="0" max="10">
+    <div id="error_hk1" class="error"></div>
 
-    <button onclick="tinhDTBNam()">Tính điểm HK2 cần đạt</button>
     <div id="ketqua_hk2" class="output"></div>
 
     <h2>Tính điểm cuối kỳ cần thiết</h2>
     <label for="diem_tx">Nhập các điểm thường xuyên (cách nhau bởi dấu cách, 0-10):</label>
     <input type="text" id="diem_tx">
+    <div id="error_tx" class="error"></div>
 
     <label for="diem_gk">Nhập điểm giữa kỳ (0-10):</label>
     <input type="number" id="diem_gk" step="0.1" min="0" max="10">
+    <div id="error_gk" class="error"></div>
 
-    <button onclick="tinhDiemCuoiKy()">Tính điểm cuối kỳ cần đạt</button>
     <div id="ketqua_ck" class="output"></div>
   </div>
 
   <script>
-    let muc_tieu = [6.5, 8.0, 9.0];
     let dtb_hk2_can_arr = [];
 
+    // Hàm hiển thị lỗi
+    function showError(elementId, message) {
+      document.getElementById(elementId).innerHTML = message;
+    }
+
+    // Hàm xóa lỗi
+    function clearError(elementId) {
+      document.getElementById(elementId).innerHTML = "";
+    }
+
+    // Hàm tính điểm HK2 cần đạt
     function tinhDTBNam() {
+      let muc_tieu_str = document.getElementById("muc_tieu").value.trim();
       let dtb_hk1 = parseFloat(document.getElementById("dtb_hk1").value);
-      if (isNaN(dtb_hk1) || dtb_hk1 < 0 || dtb_hk1 > 10) {
-        alert("Vui lòng nhập điểm HK1 hợp lệ (từ 0 đến 10).");
+
+      // Kiểm tra mục tiêu
+      let muc_tieu = muc_tieu_str.split(" ").map(Number).filter(n => !isNaN(n) && n >= 0 && n <= 10);
+      if (muc_tieu.length === 0) {
+        showError("error_muc_tieu", "Vui lòng nhập ít nhất một mục tiêu hợp lệ (0-10).");
+        document.getElementById("ketqua_hk2").innerHTML = "";
+        dtb_hk2_can_arr = [];
         return;
       }
+      clearError("error_muc_tieu");
+
+      // Kiểm tra điểm HK1
+      if (isNaN(dtb_hk1) || dtb_hk1 < 0 || dtb_hk1 > 10) {
+        showError("error_hk1", "Vui lòng nhập điểm HK1 hợp lệ (từ 0 đến 10).");
+        document.getElementById("ketqua_hk2").innerHTML = "";
+        dtb_hk2_can_arr = [];
+        return;
+      }
+      clearError("error_hk1");
 
       dtb_hk2_can_arr = [];
       let output = "<ul>";
@@ -133,29 +173,43 @@
       document.getElementById("ketqua_hk2").innerHTML = output;
     }
 
+    // Hàm tính điểm cuối kỳ cần đạt
     function tinhDiemCuoiKy() {
       if (dtb_hk2_can_arr.length === 0) {
-        alert("Bạn cần tính điểm trung bình HK2 cần thiết trước.");
+        showError("error_tx", "Bạn cần tính điểm trung bình HK2 cần thiết trước.");
+        document.getElementById("ketqua_ck").innerHTML = "";
         return;
       }
+      clearError("error_tx");
 
-      let diem_tx_str = document.getElementById("diem_tx").value.trim();
+      let diem_tx_str = document.getElement Fryer.getElementById("diem_tx").value.trim();
       let diem_gk = parseFloat(document.getElementById("diem_gk").value);
 
-      if (!diem_tx_str || isNaN(diem_gk) || diem_gk < 0 || diem_gk > 10) {
-        alert("Vui lòng nhập đầy đủ điểm hợp lệ (0-10).");
+      // Kiểm tra điểm thường xuyên
+      if (!diem_tx_str) {
+        showError("error_tx", "Vui lòng nhập ít nhất một điểm thường xuyên.");
+        document.getElementById("ketqua_ck").innerHTML = "";
         return;
       }
+      clearError("error_tx");
 
       let diem_tx = diem_tx_str.split(" ").map(Number);
-      if (
-        diem_tx.some(isNaN) ||
-        diem_tx.some(d => d < 0 || d > 10)
-      ) {
-        alert("Tất cả điểm thường xuyên phải là số từ 0 đến 10.");
+      if (diem_tx.some(isNaN) || diem_tx.some(d => d < 0 || d > 10)) {
+        showError("error_tx", "Tất cả điểm thường xuyên phải là số từ 0 đến 10.");
+        document.getElementById("ketqua_ck").innerHTML = "";
         return;
       }
+      clearError("error_tx");
 
+      // Kiểm tra điểm giữa kỳ
+      if (isNaN(diem_gk) || diem_gk < 0 || diem_gk > 10) {
+        showError("error_gk", "Vui lòng nhập điểm giữa kỳ hợp lệ (0-10).");
+        document.getElementById("ketqua_ck").innerHTML = "";
+        return;
+      }
+      clearError("error_gk");
+
+      let muc_tieu = document.getElementById("muc_tieu").value.trim().split(" ").map(Number).filter(n => !isNaN(n) && n >= 0 && n <= 10);
       let tong_tx = diem_tx.reduce((a, b) => a + b, 0);
       let so_luong_tx = diem_tx.length;
 
@@ -166,10 +220,15 @@
         diem_ck_can = Math.round(diem_ck_can * 10) / 10;
         output += `<li>Để ĐTBHK2 ≥ <strong>${muc}</strong>, cần điểm cuối kỳ ≥ <strong>${diem_ck_can}</strong></li>`;
       });
-
       output += "</ul>";
       document.getElementById("ketqua_ck").innerHTML = output;
     }
+
+    // Thêm sự kiện input cho phản hồi thời gian thực
+    document.getElementById("muc_tieu").addEventListener("input", tinhDTBNam);
+    document.getElementById("dtb_hk1").addEventListener("input", tinhDTBNam);
+    document.getElementById("diem_tx").addEventListener("input", tinhDiemCuoiKy);
+    document.getElementById("diem_gk").addEventListener("input", tinhDiemCuoiKy);
   </script>
 </body>
 </html>
