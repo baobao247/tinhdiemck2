@@ -6,6 +6,8 @@
   <meta name="description" content="Công cụ tính điểm học kỳ cần thiết để đạt mục tiêu.">
   <meta name="keywords" content="tính điểm, học kỳ, công cụ học tập, tiếng Việt">
   <title>Tính điểm học kỳ</title>
+  <!-- Font Awesome cho icon cây bút -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
   <style>
     body {
       font-family: "Segoe UI", sans-serif;
@@ -36,7 +38,7 @@
     label {
       display: block;
       margin-top: 15px;
-      font-weight: 500;
+      font-weight: 500 setters;
     }
 
     input[type="number"],
@@ -72,13 +74,27 @@
       background-color: #cc0000;
     }
 
+    button.edit {
+      background-color: #007bff;
+      padding: 5px 10px;
+      margin-left: 10px;
+      font-size: 12px;
+    }
+
+    button.edit:hover {
+      background-color: #0056b3;
+    }
+
     ul {
       padding-left: 20px;
       margin-top: 15px;
     }
 
     li {
-      margin-bottom: 8px;
+      margin-bottom: 15px;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
     }
 
     .output {
@@ -87,13 +103,29 @@
       padding: 10px;
       margin-top: 10px;
       transition: opacity 0.3s ease;
-      opacity: 1;
+      opacity: Xử lý dữ liệu...;
     }
 
     .error {
       color: red;
       font-size: 14px;
       margin-top: 5px;
+    }
+
+    .history-title {
+      display: flex;
+      align-items: center;
+      margin-bottom: 5px;
+    }
+
+    .history-title input {
+      width: 150px;
+      margin-right: 10px;
+      display: none;
+    }
+
+    .history-title span {
+      font-weight: bold;
     }
 
     @media (max-width: 600px) {
@@ -124,7 +156,7 @@
     <button onclick="luuLichSu()">Lưu kết quả</button>
 
     <h2>Lịch sử tính toán</h2>
-    <button class="delete" onclick="xoaLichSu()">Xóa lịch sử</button>
+    <button class="delete" onclick="xoaLichSu()">Xóa toàn bộ lịch sử</button>
     <div id="lich_su" class="output"></div>
   </div>
 
@@ -154,6 +186,7 @@
       }
       let lichSu = JSON.parse(localStorage.getItem("lichSuTinhToan") || "[]");
       lichSu.push({
+        title: "Điểm", // Tên mặc định
         dtb_hk1,
         ketqua_hk2,
         ketqua_ck: ketqua_ck || "Chưa tính điểm cuối kỳ",
@@ -167,14 +200,62 @@
     function hienThiLichSu() {
       const lichSu = JSON.parse(localStorage.getItem("lichSuTinhToan") || "[]");
       let output = "<ul>";
-      lichSu.forEach(item => {
-        output += `<li>Thời gian: ${item.timestamp}<br>Điểm HK1: ${item.dtb_hk1 || "Chưa nhập"}<br>${item.ketqua_hk2}<br>${item.ketqua_ck}</li>`;
+      lichSu.forEach((item, index) => {
+        output += `
+          <li>
+            <div class="history-title">
+              <span id="title_${index}">${item.title}</span>
+              <input id="input_${index}" value="${item.title}" type="text">
+              <button class="edit" onclick="toggleEditTitle(${index})"><i class="fas fa-pencil-alt"></i></button>
+              <button class="delete" onclick="xoaMotMuc(${index})">Xóa</button>
+            </div>
+            Thời gian: ${item.timestamp}<br>
+            Điểm HK1: ${item.dtb_hk1 || "Chưa nhập"}<br>
+            ${item.ketqua_hk2}<br>
+            ${item.ketqua_ck}
+          </li>`;
       });
       output += "</ul>";
       document.getElementById("lich_su").innerHTML = output;
     }
 
-    // Hàm xóa lịch sử
+    // Hàm chỉnh sửa tiêu đề
+    function toggleEditTitle(index) {
+      const titleSpan = document.getElementById(`title_${index}`);
+      const titleInput = document.getElementById(`input_${index}`);
+      if (titleInput.style.display === "none" || !titleInput.style.display) {
+        titleSpan.style.display = "none";
+        titleInput.style.display = "inline-block";
+        titleInput.focus();
+        titleInput.onblur = () => saveTitle(index);
+        titleInput.onkeypress = (e) => {
+          if (e.key === "Enter") saveTitle(index);
+        };
+      }
+    }
+
+    // Hàm lưu tiêu đề sau khi chỉnh sửa
+    function saveTitle(index) {
+      const titleInput = document.getElementById(`input_${index}`);
+      const titleSpan = document.getElementById(`title_${index}`);
+      let lichSu = JSON.parse(localStorage.getItem("lichSuTinhToan") || "[]");
+      const newTitle = titleInput.value.trim() || "Điểm"; // Mặc định nếu rỗng
+      lichSu[index].title = newTitle;
+      localStorage.setItem("lichSuTinhToan", JSON.stringify(lichSu));
+      titleSpan.textContent = newTitle;
+      titleSpan.style.display = "inline";
+      titleInput.style.display = "none";
+    }
+
+    // Hàm xóa một mục lịch sử
+    function xoaMotMuc(index) {
+      let lichSu = JSON.parse(localStorage.getItem("lichSuTinhToan") || "[]");
+      lichSu.splice(index, 1);
+      localStorage.setItem("lichSuTinhToan", JSON.stringify(lichSu));
+      hienThiLichSu();
+    }
+
+    // Hàm xóa toàn bộ lịch sử
     function xoaLichSu() {
       localStorage.removeItem("lichSuTinhToan");
       hienThiLichSu();
