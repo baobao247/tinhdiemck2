@@ -49,6 +49,21 @@
       font-size: 16px;
     }
 
+    button {
+      margin-top: 20px;
+      background-color: #ff4444;
+      color: white;
+      padding: 10px;
+      border: none;
+      border-radius: 8px;
+      font-size: 14px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #cc0000;
+    }
+
     ul {
       padding-left: 20px;
       margin-top: 15px;
@@ -97,6 +112,10 @@
     <input type="number" id="diem_gk" step="0.1" min="0" max="10">
     <div id="error_gk" class="error"></div>
     <div id="ketqua_ck" class="output"></div>
+
+    <h2>Lịch sử tính toán</h2>
+    <button onclick="xoaLichSu()">Xóa lịch sử</button>
+    <div id="lich_su" class="output"></div>
   </div>
 
   <script>
@@ -111,6 +130,40 @@
     // Hàm xóa lỗi
     function clearError(elementId) {
       document.getElementById(elementId).innerHTML = "";
+    }
+
+    // Hàm lưu lịch sử
+    function luuLichSu() {
+      const dtb_hk1 = document.getElementById("dtb_hk1").value;
+      const ketqua_hk2 = document.getElementById("ketqua_hk2").innerHTML;
+      const ketqua_ck = document.getElementById("ketqua_ck").innerHTML;
+      if (!ketqua_hk2) return; // Không lưu nếu không có kết quả HK2
+      let lichSu = JSON.parse(localStorage.getItem("lichSuTinhToan") || "[]");
+      lichSu.push({
+        dtb_hk1,
+        ketqua_hk2,
+        ketqua_ck: ketqua_ck || "Chưa tính điểm cuối kỳ",
+        timestamp: new Date().toLocaleString("vi-VN")
+      });
+      localStorage.setItem("lichSuTinhToan", JSON.stringify(lichSu));
+      hienThiLichSu();
+    }
+
+    // Hàm hiển thị lịch sử
+    function hienThiLichSu() {
+      const lichSu = JSON.parse(localStorage.getItem("lichSuTinhToan") || "[]");
+      let output = "<ul>";
+      lichSu.forEach(item => {
+        output += `<li>Thời gian: ${item.timestamp}<br>Điểm HK1: ${item.dtb_hk1 || "Chưa nhập"}<br>${item.ketqua_hk2}<br>${item.ketqua_ck}</li>`;
+      });
+      output += "</ul>";
+      document.getElementById("lich_su").innerHTML = output;
+    }
+
+    // Hàm xóa lịch sử
+    function xoaLichSu() {
+      localStorage.removeItem("lichSuTinhToan");
+      hienThiLichSu();
     }
 
     // Hàm tính điểm HK2 cần đạt
@@ -136,6 +189,7 @@
       });
       output += "</ul>";
       document.getElementById("ketqua_hk2").innerHTML = output;
+      luuLichSu(); // Lưu lịch sử sau khi tính
     }
 
     // Hàm tính điểm cuối kỳ cần đạt
@@ -182,19 +236,23 @@
         const tong_can = dtb_hk2_can_arr[i] * (so_luong_tx + 5);
         const diem_ck_can = (tong_can - (tong_tx + 2 * diem_gk)) / 3;
         const diem_ck_can_rounded = Math.round(diem_ck_can * 10) / 10;
-        output += `<li>Để ĐTBHK2 ≥ <strong>${muc}</strong>, cần điểm cuối kỳ ≥ <strong>${diem_ck_can_rounded}</strong></li>`;
+        output += `<li>Để ĐTBHK2 ≥ <strong>${muc}</strong>, cần điểm cuối kỳ ≥ <strong>${diem_ck_can_rounded}</strong></li}`;
       });
       output += "</ul>";
       document.getElementById("ketqua_ck").innerHTML = output;
+      luuLichSu(); // Lưu lịch sử sau khi tính
     }
 
     // Thêm sự kiện input cho phản hồi thời gian thực
     document.getElementById("dtb_hk1").addEventListener("input", () => {
       tinhDTBNam();
-      tinhDiemCuoiKy(); // Cập nhật cả điểm cuối kỳ nếu có dữ liệu
+      tinhDiemCuoiKy();
     });
     document.getElementById("diem_tx").addEventListener("input", tinhDiemCuoiKy);
     document.getElementById("diem_gk").addEventListener("input", tinhDiemCuoiKy);
+
+    // Hiển thị lịch sử khi tải trang
+    hienThiLichSu();
   </script>
 </body>
 </html>
