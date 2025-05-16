@@ -6,7 +6,6 @@
   <meta name="description" content="Công cụ tính điểm học kỳ cần thiết để đạt mục tiêu.">
   <meta name="keywords" content="tính điểm, học kỳ, công cụ học tập, tiếng Việt">
   <title>Tính điểm học kỳ</title>
-  <!-- Font Awesome cho icon cây bút -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
   <style>
     body {
@@ -38,7 +37,7 @@
     label {
       display: block;
       margin-top: 15px;
-      font-weight: 500 setters;
+      font-weight: 500;
     }
 
     input[type="number"],
@@ -103,7 +102,7 @@
       padding: 10px;
       margin-top: 10px;
       transition: opacity 0.3s ease;
-      opacity: Xử lý dữ liệu...;
+      opacity: 1;
     }
 
     .error {
@@ -143,7 +142,7 @@
     <div id="error_hk1" class="error"></div>
     <div id="ketqua_hk2" class="output"></div>
 
-    <h2>Tính điểm cuối kỳ cần thiết</h2>
+    <h2>Tính điểm cuối kỳ 2 cần thiết</h2> <!-- Đổi tiêu đề -->
     <label for="diem_tx">Nhập các điểm thường xuyên (cách nhau bởi dấu cách, 0-10):</label>
     <input type="text" id="diem_tx">
     <div id="error_tx" class="error"></div>
@@ -186,7 +185,7 @@
       }
       let lichSu = JSON.parse(localStorage.getItem("lichSuTinhToan") || "[]");
       lichSu.push({
-        title: "Điểm", // Tên mặc định
+        title: "Điểm",
         dtb_hk1,
         ketqua_hk2,
         ketqua_ck: ketqua_ck || "Chưa tính điểm cuối kỳ",
@@ -209,10 +208,7 @@
               <button class="edit" onclick="toggleEditTitle(${index})"><i class="fas fa-pencil-alt"></i></button>
               <button class="delete" onclick="xoaMotMuc(${index})">Xóa</button>
             </div>
-            Thời gian: ${item.timestamp}<br>
-            Điểm HK1: ${item.dtb_hk1 || "Chưa nhập"}<br>
-            ${item.ketqua_hk2}<br>
-            ${item.ketqua_ck}
+            Thời gian: ${item.timestamp}<br>Điểm HK1: ${item.dtb_hk1 || "Chưa nhập"}<br>${item.ketqua_hk2}<br>${item.ketqua_ck}
           </li>`;
       });
       output += "</ul>";
@@ -239,7 +235,7 @@
       const titleInput = document.getElementById(`input_${index}`);
       const titleSpan = document.getElementById(`title_${index}`);
       let lichSu = JSON.parse(localStorage.getItem("lichSuTinhToan") || "[]");
-      const newTitle = titleInput.value.trim() || "Điểm"; // Mặc định nếu rỗng
+      const newTitle = titleInput.value.trim() || "Điểm";
       lichSu[index].title = newTitle;
       localStorage.setItem("lichSuTinhToan", JSON.stringify(lichSu));
       titleSpan.textContent = newTitle;
@@ -265,7 +261,6 @@
     function tinhDTBNam() {
       const dtb_hk1 = parseFloat(document.getElementById("dtb_hk1").value);
 
-      // Kiểm tra điểm HK1
       if (isNaN(dtb_hk1) || dtb_hk1 < 0 || dtb_hk1 > 10) {
         showError("error_hk1", "Vui lòng nhập điểm HK1 hợp lệ (từ 0 đến 10).");
         document.getElementById("ketqua_hk2").innerHTML = "";
@@ -286,7 +281,7 @@
       document.getElementById("ketqua_hk2").innerHTML = output;
     }
 
-    // Hàm tính điểm cuối kỳ cần đạt
+    // Hàm tính điểm cuối kỳ 2 cần đạt
     function tinhDiemCuoiKy() {
       if (dtb_hk2_can_arr.length === 0) {
         showError("error_tx", "Bạn cần tính điểm trung bình HK2 cần thiết trước.");
@@ -298,7 +293,6 @@
       const diem_tx_str = document.getElementById("diem_tx").value.trim();
       const diem_gk = parseFloat(document.getElementById("diem_gk").value);
 
-      // Kiểm tra điểm thường xuyên
       if (!diem_tx_str) {
         showError("error_tx", "Vui lòng nhập ít nhất một điểm thường xuyên.");
         document.getElementById("ketqua_ck").innerHTML = "";
@@ -314,7 +308,6 @@
       }
       clearError("error_tx");
 
-      // Kiểm tra điểm giữa kỳ
       if (isNaN(diem_gk) || diem_gk < 0 || diem_gk > 10) {
         showError("error_gk", "Vui lòng nhập điểm giữa kỳ hợp lệ (0-10).");
         document.getElementById("ketqua_ck").innerHTML = "";
@@ -330,7 +323,7 @@
         const tong_can = dtb_hk2_can_arr[i] * (so_luong_tx + 5);
         const diem_ck_can = (tong_can - (tong_tx + 2 * diem_gk)) / 3;
         const diem_ck_can_rounded = Math.round(diem_ck_can * 10) / 10;
-        output += `<li>Để ĐTBHK2 ≥ <strong>${muc}</strong>, cần điểm cuối kỳ ≥ <strong>${diem_ck_can_rounded}</strong></li>`;
+        output += `<li>Để ĐTBCN ≥ <strong>${muc}</strong>, cần điểm cuối kỳ ≥ <strong>${diem_ck_can_rounded}</strong></li>`; // Đổi "Để ĐTBHK2..." thành "Để ĐTBCN..."
       });
       output += "</ul>";
       document.getElementById("ketqua_ck").innerHTML = output;
